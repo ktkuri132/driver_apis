@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "rtos",
+            "includePath": [
+                "c:/Users/ktkuru/Documents/FreeRTOSv202212.00/FreeRTOS/Source/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-arm",
+            "mergeConfigurations": false,
+            "compilerPath": "C:\\Program Files (x86)\\Arm GNU Toolchain arm-none-eabi\\13.3 rel1\\bin\\arm-none-eabi-gcc.exe",
+            "browse": {
+                "path": [
+                    "c:/Users/ktkuru/Documents/FreeRTOSv202212.00/FreeRTOS/Source/**",
+                    "${workspaceFolder}"
+                ],
+                "limitSymbolsToIncludedHeaders": true
+            }
+        }
+    ],
+    "version": 4
+}

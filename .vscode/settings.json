@@ -1,0 +1,11 @@
+{
+    "cmake.generator": "MinGW Makefiles",
+    "commentTranslate.hover.enabled": false,
+    "C_Cpp.intelliSenseEngine": "disable",
+
+    "files.associations": {
+        "sysport.h": "c",
+        "f407.h": "c",
+        "stdbool.h": "c"
+    },
+}

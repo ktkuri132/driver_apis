@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		}
+	],
+	"settings": {
+		"commentTranslate.hover.enabled": false,
+		"files.associations": {
+			"sysport.h": "c",
+			"f407.h": "c",
+			"stdbool.h": "c"
+		}
+	}
+}

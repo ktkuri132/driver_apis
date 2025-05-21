@@ -1,0 +1,8 @@
+build
+.cache
+IAR/Debug
+IAR/Release
+MDK/Objects
+MDK/DebugConfig
+MDK/Listings
+MDK/.vscode
