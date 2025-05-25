@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-
 #include "Serial.h"
 #include "sysport.h"
 

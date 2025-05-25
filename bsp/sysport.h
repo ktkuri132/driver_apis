@@ -4,30 +4,24 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <core/rt1052/MIMXRT1052.h>
-#include <core/rt1052/MIMXRT1052.h>
-#define Port_Header     <arch/rt1052/rt1052.h>
-#define Syscall_Header  <core/rt1052/syscall.h>
-
+#include <syscall.h>
 
 #ifdef MDK
 #undef STDLIB
 #endif
 
 /* 添加芯片头文件  */
-#ifndef Port_Header
-#error \
-    "Port_Header is not defined,please define Port_Header,like this:#define Port_Header arch/h723/h723.h"
+#ifdef IMX_RT1052
+#include "arch/rt1052/rt1052.h"
+#include <core/rt1052/MIMXRT1052.h>
+#include <core/rt1052/MIMXRT1052.h>
+#endif
+#ifdef __MSPM0G3507__
+#include <arch/mspm0g3507/mspm0.h>
+#include <ti/devices/msp/m0p/mspm0g350x.h>
+#include <ti/driverlib/driverlib.h>
 #endif
 
-/* 添加芯片对应提供的系统调用头文件 */
-#ifndef Syscall_Header
-#error \
-    "Syscall_Header is not defined,please define Syscall_Header,like this:#define Syscall_Header <syscall.h>"
-#endif
-
-#include Port_Header
-#include Syscall_Header
 
 
 typedef void (*func)(void *const Parameters);
@@ -44,8 +38,8 @@ typedef void (*Bfunc)(int argc, void *argv[]);
 typedef struct {
     func bsp_gpio_init;
     func bsp_gpio_af_set;
-    void (*bsp_gpio_pin_set)(void *const Parameters, uint8_t pin, uint8_t status);
-    uint8_t (*bsp_gpio_pin_get)(void *const Parameters, uint8_t pin);
+    void (*bsp_gpio_pin_set)(void *const Parameters, uint32_t pin, uint8_t status);
+    uint8_t (*bsp_gpio_pin_get)(void *const Parameters, uint32_t pin);
     uint32_t (*GetGPIOPeriphClock)(void *const Parameters);
 } GPIO_Port;
 
@@ -204,7 +198,7 @@ typedef struct {
     void (*SysTick_Init)(void);
 } SYS_Port;
 
-SYS_Port *SysPort_Init();
+SYS_Port* SysPort_Init();
 
 
 /**
@@ -225,7 +219,7 @@ SYS_Port *SysPort_Init();
 #define tim sys_port->tim_port         /* TIM指针  */
 
 #define gpio_st GPIO_Init_Parameters
-
+#define uart_st USART_Parameters
 
 extern SYS_Port *sys_port; // 声明系统接口指针
 

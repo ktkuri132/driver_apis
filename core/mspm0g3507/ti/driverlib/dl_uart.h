@@ -52,6 +52,7 @@
 #ifndef ti_dl_dl_uart__include
 #define ti_dl_dl_uart__include
 
+
 #if defined(ti_dl_dl_uart_main__include) || \
     defined(ti_dl_dl_uart_extend__include) || defined(DOXYGEN__INCLUDE)
 
