@@ -61,4 +61,8 @@ typedef struct{
 void MSP_UART_Init(void *const Parameters);
 void MSP_SendString(void *const param,uint8_t *data);
 uint8_t MSP_ReceiveData(void *const param, uint8_t *data);
+
+void MSP_Motor_Set(GPTIMER_Regs *TIMERx,uint8_t Motor,uint32_t Load);
+uint32_t MSP_Motor_Get(GPTIMER_Regs *TIMERx,uint8_t Motor);
+
 #endif

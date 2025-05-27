@@ -11,7 +11,7 @@ cmake_minimum_required(VERSION 3.15)
 
 # Absolute path to FreeRTOS config file directory
 # set(FREERTOS_CONFIG_FILE_DIRECTORY  CACHE STRING "C:\\Users\\34575\\Desktop\\Move_Target_Control\\bsp\\Middlewave\\rtos\\include")
-set(FREERTOS_CONFIG_FILE_DIRECTORY "C:\\Users\\34575\\Desktop\\Move_Target_Control\\bsp\\Middlewave\\rtos\\include")
+set(FREERTOS_CONFIG_FILE_DIRECTORY "C:\\Users\\34575\\Desktop\\driver_apis\\bsp\\middlewave\\rtos\\include")
 
 if(NOT FREERTOS_CONFIG_FILE_DIRECTORY)
     message(FATAL_ERROR " FreeRTOSConfig.h file directory not specified. Please specify absolute path to it from top-level CMake file:\n"

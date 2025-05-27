@@ -5,8 +5,8 @@ cmake_minimum_required(VERSION 3.22)
 
 # 设置目标处理器架构,芯片型号,和目标板简称
 set(CMAKE_SYSTEM_PROCESSOR cortex-m7)
-set(Target_Board MSPM0G)
-set(Board_Name mspm0g3507)
+set(Target_Board I.MXRT)
+set(Board_Name rt1052)
 
 # 指定交叉编译工具链
 set(CMAKE_C_COMPILER arm-none-eabi-gcc)

@@ -7,9 +7,59 @@
 #include "Serial.h"
 #include "sysport.h"
 
+void MCU_Shell_Init(Bie_ShellTypeDef *ShellTypeStruct,DeviceFamily *log) {
+    ShellTypeStruct->c = 0;          // 初始化接收字符
+    ShellTypeStruct->Res_len = 0;    // 初始化接收长度
+    ShellTypeStruct->UART_NOTE = 0;  // 初始化串口节点
+    ShellTypeStruct->RunStae = 0;    // 初始化运行状态
+    memset(ShellTypeStruct->Data, 0, sizeof(ShellTypeStruct->Data));  // 清空数据缓冲区
+    printf(CLEAR_SCREEN);            // 清屏
+    printf("SHELL_VERSION: %d.%d.%d\n", SHELL_VERSION_MAIN, SHELL_VERSION_RE, SHELL_VERSION_UPDATE);  // 显示版本信息
+    if(log->Architecture != NULL) {
+        printf("Architecture: %s\n", log->Architecture);  // 显示处理器架构
+    } else {
+        printf("Architecture:"FG_RED" Unknown"RESET_ALL"\n");
+    }
+    if(log->DeviceName != NULL) {
+        printf("Device Name: %s\n", log->DeviceName);  // 显示设备名称
+    } else {
+        printf("Device Name:"FG_RED" Unknown"RESET_ALL"\n");
+    }
+    if(log->OS != NULL) {
+        printf("Operating System: %s\n", log->OS);  // 显示操作系统
+    } else {
+        printf("Operating System:"FG_RED"No OS"RESET_ALL"\n");
+    }
+    if(log->Device != NULL) {
+        printf("Device Model: %s\n", log->Device);  // 显示设备型号
+    } else {
+        printf("Device Model:"FG_RED" Unknown"RESET_ALL"\n");
+    }
+    if(log->Version != NULL) {
+        printf("Version: %s\n", log->Version);  // 显示版本信息
+    } else {
+        printf("Version:"FG_RED" Unknown"RESET_ALL"\n");
+    }
+    if(log->User != NULL) {
+        printf("User: %s\n", log->User);  // 显示用户名
+    } else {
+        printf("User:"FG_RED" Unknown"RESET_ALL"\n");
+    }
+    if(log->Password != NULL) {
+        printf("Password: %s\n", log->Password);  // 显示密码
+    } else {
+        printf("Password:"FG_RED" Unknown"RESET_ALL"\n");
+    }
+    printf("The MCU Shell is start\n");  // 欢迎信息
+    printf("If you feel it is useful, please give me a star on GitHub ^_^ -> ");
+    printf(TEXT_UNDERLINE"https:\/\/github.com\/ktkuri132\/driver_apis.git\n"RESET_ALL);  // GitHub提示
+    printf("Type 'help' for a list of commands.\n\n\n");  // 提示用户输入帮助命令
+    printf("%s@%s> ",log->User,log->Device);       // 显示提示符
+    fflush(stdout);                   // 刷新输出缓冲区
+}
 
 // 串口1中断处理函数：检测数据格式，接收数据
-void BIE_UART(void *Parameters, Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env) {
+void BIE_UART(void *Parameters, Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env,DeviceFamily *log) {
     printf(RESET_ALL);
     usart.bsp_usart_x_receive(Parameters, &ShellTypeStruct->c);  // 接收数据
     // 如果是回车键
@@ -18,7 +68,7 @@ void BIE_UART(void *Parameters, Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env) 
         printf("\n");                                            // 换行
         Shell_Deal(ShellTypeStruct, env);                        // 解析并执行命令
         ShellTypeStruct->Res_len = 0;                            // 重置输入长度
-        printf("MCU_shell@root> ");                                   // 显示提示符
+        printf("%s@%s> ",log->User,log->Device);       // 显示提示符
         fflush(stdout);
     }
     // 如果是退格键

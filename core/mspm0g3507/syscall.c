@@ -2,9 +2,20 @@
 #include <middlewave/sh/Serial.h>
 #include <middlewave/sh/shell.h>
 #include <ti/devices/msp/m0p/mspm0g350x.h>
-EnvVar MyEnv[];
+#include <include/env.h>
+
 
 #define SystemCoreClock CPUCLK_FREQ
+
+DeviceFamily MSP_Family = {
+    .Architecture = "Cotex-M0+",
+    .User = "ktkuri",
+    .Password = NULL,
+    .DeviceName = "LaunchPad",
+    .OS = NULL,
+    .Device = "MSPM0G3507",
+    .Version = "1.0.0"
+};
 
 /**
  * @brief  SysTick定时器中断初始化函数

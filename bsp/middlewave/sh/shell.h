@@ -8,11 +8,17 @@
 // 确认发行版号
 #define SHELL_VERSION_RE			0		
 // 更新号
-#define SHELL_VERSION_UPDATE		0 
+#define SHELL_VERSION_UPDATE		1
 
 typedef struct{
-	
-}SHELL_VERSION;
+    char *Architecture;  // 处理器架构
+    char *User;         // 用户名
+    char *Password;      // 密码
+    char *DeviceName;   // 设备名称
+    char *OS;           // 操作系统
+    char *Device;        // 设备型号
+    char *Version;       // 版本信息
+}DeviceFamily;
 
 typedef struct {
     uint8_t c;
@@ -31,8 +37,9 @@ typedef struct {
     void (*callback)(int argc, void *argv[]);  // 命令回调函数
 } EnvVar;                                      // 环境变量结构体
 
+void MCU_Shell_Init(Bie_ShellTypeDef *ShellTypeStruct,DeviceFamily *log);
 void Shell_Deal(Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env_vars);
-void BIE_UART(void* Parameters,Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env);
+void BIE_UART(void *Parameters, Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env,DeviceFamily *log);
 
 typedef struct {
     void (*ls)(int argc, void *argv[]);        // ls命令回调函数

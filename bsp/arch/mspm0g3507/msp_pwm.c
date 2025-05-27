@@ -1,11 +1,10 @@
 #include <sysport.h>
 
 
-void Motor_Set(uint8_t Motor,uint32_t Load){
-	
+void MSP_Motor_Set(GPTIMER_Regs *TIMERx,uint8_t Motor,uint32_t Load){
+	DL_TimerA_setCaptureCompareValue(TIMERx, Load, Motor);
 }
 
-uint32_t Motor_Get(uint8_t Motor) {
-	
-	return 0;
+uint32_t MSP_Motor_Get(GPTIMER_Regs *TIMERx,uint8_t Motor) {
+	return DL_TimerA_getCaptureCompareValue(TIMERx, Motor);
 }
