@@ -14,10 +14,10 @@ typedef enum {
 } GPIO_Direction;
 
 typedef struct {
-    GPIO_Regs *GPIOx;       /*GPIO Port*/
-    uint8_t IO_Dir;         /*GPIO方向 @param[1] GPIO_DIR_INPUT @param[2] GPIO_DIR_OUTPUT @param[3] GPIO_DIR_Analog @param[3] GPIO_DIR_DIGITAL*/
-    uint32_t PINCM;         /*MSP的GPIO索引号: 见于mspm0g350x.h文件 @param IOMUX_PINCM*/
-    uint32_t GPIO_Pin;       /*原理图上的GPIO Pin*/
+    GPIO_Regs *GPIOx;               /*GPIO Port*/
+    uint8_t IO_Dir;                 /*GPIO方向 @param[1] GPIO_DIR_INPUT @param[2] GPIO_DIR_OUTPUT @param[3] GPIO_DIR_Analog @param[3] GPIO_DIR_DIGITAL*/
+    uint32_t PINCM;                 /*MSP的GPIO索引号: 见于mspm0g350x.h文件 @param IOMUX_PINCM*/
+    uint32_t GPIO_Pin;              /*原理图上的GPIO Pin*/
     DL_GPIO_INVERSION INVERSION;      /*GPIO输出反转功能*/
     DL_GPIO_RESISTOR RESISTOR;       /*GPIO内部上拉下拉电阻功能*/
     DL_GPIO_DRIVE_STRENGTH DRIVE_STRENGTH; /*GPIO的驱动能力*/
@@ -36,6 +36,7 @@ typedef struct{
     uint8_t GPIO_AF;
 }GPIO_Pin_Parameters;
 
+void Unuer_Check(uint8_t const *UIOMUX);
 void MSP_GPIO_init(void *const Parameters);
 void MSP_GPIO_setPin(void *const Parameters,uint32_t pin,uint8_t value);
 uint8_t MSP_GPIO_getPin(void *const Parameters,uint32_t pin);
@@ -55,11 +56,9 @@ typedef struct{
     DL_UART_STOP_BITS stopBits;     /*配置停止位*/
     DL_UART_OVERSAMPLING_RATE oversamplingRate; /*过采样速率*/
     DL_UART_IIDX IIDX;            /*中断索引*/
-    DL_UART_TXD_OUT TXD;           /*TXD引脚配置*/
-    DL_UART_RTS RTS;           /*RTS引脚配置*/
 }USART_Parameters;
 
 void MSP_UART_Init(void *const Parameters);
-
-
+void MSP_SendString(void *const param,uint8_t *data);
+uint8_t MSP_ReceiveData(void *const param, uint8_t *data);
 #endif

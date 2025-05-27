@@ -6,31 +6,51 @@
 #include <sysport.h>
 
 
-/**
- * @brief 计算 UART 波特率分频值
- * @param clockFreq UART 时钟频率（单位：Hz）
- * @param baudRate 目标波特率（单位：bps）
- * @param ibrd 输出参数，用于存储计算得到的整数分频值
- * @param fbrd 输出参数，用于存储计算得到的小数分频值
- */
-void calculateUARTDividers(uint32_t clockFreq, uint32_t baudRate, uint32_t *ibrd, uint32_t *fbrd) {
-    if (baudRate == 0 || clockFreq == 0) {
-        return;
-    }
-
-    // 计算分频值
-    double divider = (double)clockFreq / (16.0 * baudRate);
-
-    // 提取整数部分和小数部分
-    *ibrd = (uint32_t)divider; // 整数部分
-    double fractionalPart = divider - *ibrd;
-
-    // 计算小数分频值（四舍五入到最近的整数）
-    *fbrd = (uint32_t)(fractionalPart * 64.0 + 0.5); // 小数部分乘以 64
-}
-
 /*要是用C++就好了*/
 
+void get_sbrosr(uint32_t bound,uint32_t srcClock_Hz,uint16_t *sbr,uint32_t *osr)
+{
+    uint16_t sbrTemp;
+    uint32_t osrTemp, tempDiff, calculatedBaud, baudDiff;
+
+    /* This LPUART instantiation uses a slightly different baud rate calculation
+     * The idea is to use the best OSR (over-sampling rate) possible
+     * Note, OSR is typically hard-set to 16 in other LPUART instantiations
+     * loop to find the best OSR value possible, one that generates minimum baudDiff
+     * iterate through the rest of the supported values of OSR */
+
+    baudDiff = bound;
+    *osr = 0;
+    *sbr = 0;
+    for (osrTemp = 4; osrTemp <= 32; osrTemp++)
+    {
+        /* calculate the temporary sbr value   */
+        sbrTemp = (srcClock_Hz / (bound * osrTemp));
+        /*set sbrTemp to 1 if the sourceClockInHz can not satisfy the desired baud rate*/
+        if (sbrTemp == 0)
+        {
+            sbrTemp = 1;
+        }
+        /* Calculate the baud rate based on the temporary OSR and SBR values */
+        calculatedBaud = (srcClock_Hz / (osrTemp * sbrTemp));
+
+        tempDiff = calculatedBaud - bound;
+
+        /* Select the better value between srb and (sbr + 1) */
+        if (tempDiff > (bound - (srcClock_Hz / (osrTemp * (sbrTemp + 1)))))
+        {
+            tempDiff = bound - (srcClock_Hz / (osrTemp * (sbrTemp + 1)));
+            sbrTemp++;
+        }
+
+        if (tempDiff <= baudDiff)
+        {
+            baudDiff = tempDiff;
+            *osr = osrTemp; /* update and store the best OSR value calculated */
+            *sbr = sbrTemp; /* update store the best SBR value calculated */
+        }
+    }
+}
 
 void MSP_UART_Init(void *const Parameters) {
     uart_st *uart = (uart_st *)Parameters;
@@ -80,9 +100,9 @@ void MSP_UART_Init(void *const Parameters) {
             UART_LCRH_WLEN_MASK | UART_LCRH_STP2_MASK);
 
     uint32_t ibrd, fbrd;
-    // calcula teUARTDividers(32768,uart->baudrate, &ibrd, &fbrd);  /*计算整数部分和小数部分*/
+    get_sbrosr(uart->baudrate, 32768,&ibrd, &fbrd);  /*计算整数部分和小数部分*/
     DL_UART_Main_setOversampling(uart->UARTx, uart->oversamplingRate);  /*设置过采样*/
-    DL_UART_Main_setBaudRateDivisor(uart->UARTx, 1,9);    /*设置波特率*/
+    DL_UART_Main_setBaudRateDivisor(uart->UARTx,1, 9);    /*设置波特率*/
  
     /* 使能接受中断 */
     DL_UART_Main_enableInterrupt(uart->UARTx, DL_UART_MAIN_INTERRUPT_RX);
@@ -90,4 +110,15 @@ void MSP_UART_Init(void *const Parameters) {
     DL_UART_Main_enable(uart->UARTx);
 }
 
-void MSP_UART_SetBaudRate(uint32_t baudrate) {}
+void MSP_SendString(void *const param,uint8_t *data){
+    UART_Regs *ut = (UART_Regs *)param;
+    while (*data != '\0') {  /*发送字符串*/
+        DL_UART_Main_transmitDataBlocking(ut, *data++);  /*阻塞发送*/
+    }
+}
+
+uint8_t MSP_ReceiveData(void *const param, uint8_t *data) {
+    UART_Regs *ut = (UART_Regs *)param;
+    *data = DL_UART_Main_receiveDataBlocking(ut);  /*阻塞接收*/
+    return *data;  /*返回接收到的数据*/
+}

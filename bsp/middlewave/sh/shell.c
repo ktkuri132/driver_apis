@@ -18,7 +18,7 @@ void BIE_UART(void *Parameters, Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env) 
         printf("\n");                                            // 换行
         Shell_Deal(ShellTypeStruct, env);                        // 解析并执行命令
         ShellTypeStruct->Res_len = 0;                            // 重置输入长度
-        printf("stm32f407@root> ");                                   // 显示提示符
+        printf("MCU_shell@root> ");                                   // 显示提示符
         fflush(stdout);
     }
     // 如果是退格键

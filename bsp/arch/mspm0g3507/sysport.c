@@ -5,7 +5,7 @@
 #include <Middlewave/sh/shell.h>
 #include <include/ti_msp_dl_config.h>
 #include <syscall.h>
-// #define USART
+#define USART
 // #define TIM
 // #define I2C
 // #define SPI
@@ -23,7 +23,7 @@ extern EnvVar MyEnv[];
 SYS_Port* SysPort_Init() {
     static SYS_Port port = {
         .System_Init = SYSCFG_DL_init,
-        .SysTick_Init = NULL,
+        .SysTick_Init = MSP_SysTick_Init,
         .syscall_port = {
           .bsp_systick_delay_us = DL_Common_delayCycles,
           .bsp_systick_delay_ms = delay_ms,
@@ -33,8 +33,8 @@ SYS_Port* SysPort_Init() {
             .bsp_rcc_periph_clock = NULL,
         },
         .gpio_port = {
-            .bsp_gpio_init = MSP_GPIO_init,
-            .bsp_gpio_af_set = MSP_IOMUX,
+            .bsp_gpio_init = NULL,
+            .bsp_gpio_af_set = NULL,
             .bsp_gpio_pin_set = MSP_GPIO_setPin,
            .bsp_gpio_pin_get = MSP_GPIO_getPin,
             .GetGPIOPeriphClock = NULL,
@@ -63,8 +63,8 @@ SYS_Port* SysPort_Init() {
         .usart_port = {
             .bsp_usart_x_inti = NULL,
             .bsp_usart_x_send_byte = NULL,
-            .bsp_usart_x_send_string = NULL,
-            .bsp_usart_x_receive = NULL,
+            .bsp_usart_x_send_string = MSP_SendString,
+            .bsp_usart_x_receive = MSP_ReceiveData,
             .bsp_get_rxs = NULL,
         },
         #endif
@@ -167,7 +167,7 @@ void _sys_exit(int x)
 int fputc(int ch, FILE *f)
 { 	
 	(void)f;
-    usart.bsp_usart_x_send_string(usart_1,(uint8_t*)&ch); // 发送数据
+    usart.bsp_usart_x_send_string(UART_0_INST,(uint8_t*)&ch); // 发送数据
     return ch;
 }
 

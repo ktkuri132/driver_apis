@@ -4,6 +4,8 @@
 #include <syscall.h>
 #include <sysport.h>
 
+
+
 /**
  * @brief MSP的GPIO初始化函数
  * 
@@ -85,17 +87,17 @@ uint8_t MSP_GPIO_getPin(void *const Parameters,uint32_t pin) {
  */
 void MSP_IOMUX(void *const Parameters) {
     gpio_st *io = (gpio_st *)Parameters;
-    //DL_GPIO_initPeripheralFunction(io->PINCM, io->GPIO_AF);
+    DL_GPIO_initPeripheralFunction(io->PINCM, io->GPIO_AF);
     if(io->IO_Dir == GPIO_DIR_INPUT){ /*输入*/
         DL_GPIO_initPeripheralInputFunction(io->PINCM, io->GPIO_AF);
-        // DL_GPIO_initPeripheralInputFunctionFeatures(io->PINCM, io->GPIO_AF,
-        //                                             io->INVERSION, io->RESISTOR,
-        //                                             io->HYSTERESIS, io->WAKEUP);
+        DL_GPIO_initPeripheralInputFunctionFeatures(io->PINCM, io->GPIO_AF,
+                                                    io->INVERSION, io->RESISTOR,
+                                                    io->HYSTERESIS, io->WAKEUP);
     } else if(io->IO_Dir == GPIO_DIR_OUTPUT){ /*输出*/
         DL_GPIO_initPeripheralOutputFunction(io->PINCM, io->GPIO_AF);
-        // DL_GPIO_initPeripheralOutputFunctionFeatures(io->PINCM, io->GPIO_AF,
-        //                                             io->INVERSION, io->RESISTOR,
-        //                                             io->DRIVE_STRENGTH, io->HIZ);
+        DL_GPIO_initPeripheralOutputFunctionFeatures(io->PINCM, io->GPIO_AF,
+                                                    io->INVERSION, io->RESISTOR,
+                                                    io->DRIVE_STRENGTH, io->HIZ);
     } else if(io->IO_Dir == GPIO_DIR_Analog){ /*模拟*/
         DL_GPIO_initPeripheralAnalogFunction(io->PINCM);
     }
