@@ -121,7 +121,7 @@ void SysTick_Handler(void) {
  * @}
  */
 
-extern struct USART_Parameters *usart_1;
+
 #ifndef STDLIB
 
 #if defined ( __CC_ARM )
@@ -173,7 +173,7 @@ int fputc(int ch, FILE *f)
 
 int fgetc(FILE *f) {
     (void)f;
-    int ch = usart.bsp_usart_x_receive(usart_1,NULL); // 接收数据
+    int ch = usart.bsp_usart_x_receive(UART_0_INST,NULL); // 接收数据
     return ch;
 }
 
