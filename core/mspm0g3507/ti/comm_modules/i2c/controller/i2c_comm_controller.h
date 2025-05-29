@@ -45,7 +45,7 @@
 #ifndef I2C_COMM_CONTROLLER_H_
 #define I2C_COMM_CONTROLLER_H_
 
-#include "ti_msp_dl_config.h"
+#include "include/ti_msp_dl_config.h"
 #include <stdbool.h>
 
 #ifdef __cplusplus

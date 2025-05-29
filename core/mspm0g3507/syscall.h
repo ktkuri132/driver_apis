@@ -7,7 +7,7 @@
 #include <ti/driverlib/dl_common.h>
 #include "include/ti_msp_dl_config.h"
 #include <middlewave/sh/shell.h>
-
+#include <drivers/bsp_iic.h>
 
 __STATIC_INLINE void MSP_NVIC_Configuration(void) {
     NVIC_SetPriorityGrouping(4);

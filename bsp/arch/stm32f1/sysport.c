@@ -1,6 +1,7 @@
 #include <errno.h>
-#include "sysport.h"
+#include <sysport.h>
 #include <stdint.h>
+#include <syscall.h>
 #include <Middlewave/sh/Serial.h>
 #include <Middlewave/sh/shell.h>
 #define USART
@@ -119,18 +120,18 @@ void SysTick_Handler(void) {
  * @}
  */
 
-extern struct USART_Parameters *usart_1;
+extern uart_st *usart_1;
 #ifndef STDLIB
 
 #if defined ( __CC_ARM )
 
 #pragma import(__use_no_semihosting)                             
-struct __FILE 
-{ 
-	int handle; 
-}; 
+// struct __FILE 
+// { 
+// 	int handle; 
+// }; 
 
-FILE __stdout;       
+// FILE __stdout;       
    
 void _sys_exit(int x) 
 { 

@@ -5,7 +5,6 @@
 uint8_t OLED_DisplayBuf[8][128];
 
 #ifdef Peripheral_IIC
-#include <stm32f4xx_gpio.h>
 /*引脚配置*********************/
 
 /**
@@ -19,8 +18,15 @@ uint8_t OLED_DisplayBuf[8][128];
 void OLED_W_SCL(uint8_t BitValue)
 {
 	/*根据BitValue的值，将SCL置高电平或者低电平*/
-	GPIO_WriteBit(GPIOB, GPIO_Pin_8, (BitAction)BitValue);
-	
+	// GPIO_WriteBit(GPIOB, GPIO_Pin_8, (BitAction)BitValue);
+	if(BitValue)
+	{
+		DL_GPIO_setPins(GPIOB, DL_GPIO_PIN_11);
+	}
+	else
+	{
+		DL_GPIO_clearPins(GPIOB, DL_GPIO_PIN_11);
+	}
 	/*如果单片机速度过快，可在此添加适量延时，以避免超出I2C通信的最大速度*/
 	//...
 }
@@ -36,8 +42,15 @@ void OLED_W_SCL(uint8_t BitValue)
 void OLED_W_SDA(uint8_t BitValue)
 {
 	/*根据BitValue的值，将SDA置高电平或者低电平*/
-	GPIO_WriteBit(GPIOB, GPIO_Pin_9, (BitAction)BitValue);
-	
+	// GPIO_WriteBit(GPIOB, GPIO_Pin_9, (BitAction)BitValue);
+	if(BitValue)
+	{
+		DL_GPIO_setPins(GPIOB, DL_GPIO_PIN_5);
+	}
+	else
+	{
+		DL_GPIO_clearPins(GPIOB, DL_GPIO_PIN_5);
+	}
 	/*如果单片机速度过快，可在此添加适量延时，以避免超出I2C通信的最大速度*/
 	//...
 }
@@ -53,26 +66,26 @@ void OLED_GPIO_Init(void)
 {
 	uint32_t i, j;
 	
-	/*?????,??????,?OLED????*/
-	for (i = 0; i < 1000; i ++)
-	{
-		for (j = 0; j < 1000; j ++);
-	}
+	// /*?????,??????,?OLED????*/
+	// for (i = 0; i < 1000; i ++)
+	// {
+	// 	for (j = 0; j < 1000; j ++);
+	// }
 	
-	/*?SCL?SDA??????????*/
-   	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB,ENABLE);
+	// /*?SCL?SDA??????????*/
+   	// RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB,ENABLE);
 	
-	GPIO_InitTypeDef GPIO_InitStructure;
+	// GPIO_InitTypeDef GPIO_InitStructure;
 	
- 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-	GPIO_InitStructure.GPIO_OType=GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
-	GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_UP;
- 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	GPIO_InitStructure.GPIO_OType=GPIO_OType_OD;
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
- 	GPIO_Init(GPIOB, &GPIO_InitStructure);
+ 	// GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+	// GPIO_InitStructure.GPIO_OType=GPIO_OType_PP;
+	// GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+	// GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+	// GPIO_InitStructure.GPIO_PuPd=GPIO_PuPd_UP;
+ 	// GPIO_Init(GPIOB, &GPIO_InitStructure);
+	// GPIO_InitStructure.GPIO_OType=GPIO_OType_OD;
+	// GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
+ 	// GPIO_Init(GPIOB, &GPIO_InitStructure);
 	
 	/*??SCL?SDA*/
 	OLED_W_SCL(1);

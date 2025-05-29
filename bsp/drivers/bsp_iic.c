@@ -1,237 +1,253 @@
-/**
- * @file bsp_iic.c
- * @author ktkuri132 (jg3457532@gmail.com)
- * @brief 典型iic驱动中间层文件.参照Github上的开源iic驱动:sf_i2c
- * @version 0.1
- * @date 2025-05-27
- * 
- * @copyright Copyright (c) 2025
- * 
- */
+#include <drivers/bsp_iic.h>
 
-#include "bsp_iic.h"
-#include <stdint.h>
-
-#define Low_Speed   0  // I2C低速模式
-#define High_Speed  1  // I2C高速模式
-
-#define INIT(p_dev)                 p_dev->dfo.Init()              // 端口初始化函数
-#define SCL_UP(p_dev)               p_dev->dfo.scl_up()             // SCL引脚拉高
-#define SCL_DOWN(p_dev)             p_dev->dfo.scl_down()           // SCL引脚拉低
-#define SDA_SET_OUTPUT(p_dev)       p_dev->dfo.sda_set_output()     // 设置SDA引脚为输出
-#define SDA_UP(p_dev)               p_dev->dfo.sda_up()             // SDA引脚拉高
-#define SDA_DOWN(p_dev)             p_dev->dfo.sda_down()           // SDA引脚拉低
-#define SDA_SET_INPUT(p_dev)        p_dev->dfo.sda_set_input()      // 设置SDA引脚为输入
-#define SDA_READ(p_dev)             p_dev->dfo.sda_read()           // 读取SDA引脚状态
-#define DELAY_US_Low(p_dev)         p_dev->dfo.delay_us(Low_Speed)         // 延时函数
-#define DELAY_US_High(p_dev)        p_dev->dfo.delay_us(High_Speed)        // 延时函数
-
-#define BUSY(p_dev)                 p_dev->ss.busy                 // I2C总线是否忙
-#define ERROR(p_dev)                p_dev->ss.error                // I2C通信错误标志
-#define ACK(p_dev)                  p_dev->ss.ack                  // I2C应答标志
-#define DEVICE_SUCCESS(p_dev)       p_dev->ss.Device_Success       // I2C设备是否成功连接
-#define DEVICE_FAIL(p_dev)          p_dev->ss.Device_Fail          // I2C设备连接失败标志
-
-/**
- * @brief I2C设备初始化函数
- * 
- * @param dev 指向I2C设备结构体的指针
- * @return int 返回0表示成功，其他值表示错误
- */
-int i2c_dev_init(i2c_t *dev){
-    INIT(dev);  // 调用端口初始化函数
-    BUSY(dev) = 0;  // 设置总线状态为空闲
-    ERROR(dev) = 0;  // 清除通信错误标志
-    ACK(dev) = 0;  // 清除应答标志
-    DEVICE_SUCCESS(dev) = 0;  // 清除设备连接成功标志
-    DEVICE_FAIL(dev) = 0;  // 清除设备连接失败标志
-    SDA_SET_OUTPUT(dev);  // 设置SDA引脚为输出
-    SCL_UP(dev);  // 拉高SCL引脚
-    SDA_UP(dev);  // 拉高SDA引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
+void delay_us(uint32_t nus)
+{
+	DL_Common_delayCycles(nus * 16); // 1us = 16 cycles
 }
 
-/**
- * @brief i2c_start - 发送I2C起始信号
- * 
- * @param dev 参数结构体
- */
-void i2c_start(i2c_t *dev){
-    SDA_SET_OUTPUT(dev);  // 设置SDA引脚为输出
-    SCL_UP(dev);  // 拉高SCL引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SDA_DOWN(dev);  // 拉低SDA引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SCL_DOWN(dev);  // 拉低SCL引脚
-}
-
-void i2c_restart(i2c_t *dev){
-    SDA_SET_OUTPUT(dev);  // 设置SDA引脚为输出
-    SCL_UP(dev);  // 拉高SCL引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SDA_UP(dev);  // 拉高SDA引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SDA_DOWN(dev);  // 拉低SDA引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SCL_DOWN(dev);  // 拉低SCL引脚
-}
-
-void i2c_stop(i2c_t *dev){
-    SDA_SET_OUTPUT(dev);  // 设置SDA引脚为输出
-    SCL_DOWN(dev);  // 拉低SCL引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SDA_DOWN(dev);  // 拉低SDA引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SCL_UP(dev);  // 拉高SCL引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SDA_UP(dev);  // 拉高SDA引脚
-}
-
-void i2c_ack(i2c_t *dev){
-    SDA_SET_OUTPUT(dev);  // 设置SDA引脚为输出
-    SCL_DOWN(dev);  // 拉低SCL引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SDA_DOWN(dev);  // 拉低SDA引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SCL_UP(dev);  // 拉高SCL引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SCL_DOWN(dev);  // 拉低SCL引脚
-}
-
-void i2c_nack(i2c_t *dev){
-    SDA_SET_OUTPUT(dev);  // 设置SDA引脚为输出
-    SCL_DOWN(dev);  // 拉低SCL引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SDA_UP(dev);  // 拉高SDA引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SCL_UP(dev);  // 拉高SCL引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SCL_DOWN(dev);  // 拉低SCL引脚
-}
-
-i2c_ss_t i2c_wait_ack(i2c_t *dev){
-    uint16_t wait_time = 0xFFF;  // 等待时间计数器
-
-    SDA_SET_INPUT(dev);  // 设置SDA引脚为输入
-    SCL_UP(dev);  // 拉高SCL引脚
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-
-    while (SDA_READ(dev)) {  // 等待SDA引脚拉低
-        if ((wait_time--) == 0) {
-            SDA_UP(dev);  // 拉高SDA引脚
-            SDA_SET_OUTPUT(dev);  // 设置SDA引脚为输出
-            i2c_stop(dev);  // 发送停止信号
-            ERROR(dev) = 1;  // 设置通信错误标志
-            return dev->ss;  // 返回状态结构体
-        }
+void Soft_IIC_SCL(uint8_t state)
+{
+	if(state)
+    {
+        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT, Bit_SET);
+        DL_GPIO_setPins(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT);
     }
-
-    DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    SCL_DOWN(dev);  // 拉低SCL引脚
-    SDA_UP(dev);  // 拉高SDA引脚
-    SDA_SET_OUTPUT(dev);  // 设置SDA引脚为输出
-
-    return dev->ss;  // 返回状态结构体
-}
-
-i2c_ss_t i2c_send_byte(i2c_t *dev, uint8_t byte){
-    uint8_t i;
-
-    for (i = 0; i < 8; i++) {
-        SCL_DOWN(dev);  // 拉低SCL引脚
-        DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-
-        if (byte & 0x80) {
-            SDA_UP(dev);  // SDA引脚拉高
-        } else {
-            SDA_DOWN(dev);  // SDA引脚拉低
-        }
-
-        SCL_UP(dev);  // 拉高SCL引脚
-        DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-        byte <<= 1;  // 左移一位
-    }
-
-    return i2c_wait_ack(dev);  // 等待应答信号
-}
-
-uint8_t i2c_read_byte(i2c_t *dev, uint8_t ack,uint8_t *data){
-    uint8_t i = 0;
-
-    SDA_SET_INPUT(dev);  // 设置SDA引脚为输入
-    for (i = 0; i < 8; i++) {
-        *data <<= 1;  // 左移一位
-        SCL_DOWN(dev);  // 拉低SCL引脚
-        DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-        SCL_UP(dev);  // 拉高SCL引脚
-
-        if (SDA_READ(dev)) {
-            *data |= 0x01;  // 如果SDA引脚为高，则设置最低位为1
-        }
-
-        DELAY_US_Low(dev);  // 延时，确保引脚状态稳定
-    }
-
-    if (ack) {
-        i2c_ack(dev);  // 发送应答信号
-    } else {
-        i2c_nack(dev);  // 发送非应答信号
-    }
-
-    return *data;  // 返回读取的字节数据
-}
-
-i2c_ss_t i2c_send_bytes(i2c_t *dev, uint8_t *data, uint16_t len){
-    uint16_t i;
-    i2c_ss_t ret;
-    for (i = 0; i < len; i++) {
-        ret = i2c_send_byte(dev, data[i]);  // 逐字节发送数据
-    }
-
-    return ret;  // 返回状态结构体
-}
-
-void i2c_read_bytes(i2c_t *dev, uint8_t *data, uint16_t len){
-    uint16_t i;
-    uint8_t ret;
-    for (i = 0; i < len; i++) {
-        ret = i2c_read_byte(dev, (i == (len - 1)) ? 0 : 1, &data[i]);  // 逐字节读取数据
+    else
+    {
+        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT, Bit_RESET);
+        DL_GPIO_clearPins(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT);
     }
 }
 
-void i2c_send_addr(i2c_t *dev, uint8_t addr, uint8_t *data, uint16_t len){
-    i2c_start(dev);  // 发送起始信号
-    if(dev->ss.flags & 0x01) {  // 如果是读操作
-        i2c_send_byte(dev, (addr << 1) | 1);  // 发送设备地址和读标志
-    } else {  // 如果是写操作
-        i2c_send_byte(dev, (addr << 1) | 0);  // 发送设备地址和写标志
+void Soft_IIC_SDA(uint8_t state)
+{
+	if(state)
+    {
+        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT, Bit_SET);
+        DL_GPIO_setPins(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT);
     }
-    i2c_send_bytes(dev, data, len);  // 发送数据
-    i2c_stop(dev);  // 发送停止信号
+    else
+    {
+        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT, Bit_RESET);
+        DL_GPIO_clearPins(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT);
+    }
 }
 
-i2c_ss_t i2c_transfer(i2c_t *dev, i2c_msg_t *msg,uint8_t num){
-    i2c_ss_t ret;
-    
-    for (int i = 0; i < num; i++) {
-        if (!(dev->ss.flags & SF_I2C_FLAG_NO_START)) {
-            if (i == 1) {
-                i2c_restart(dev);
-            } else {
-                i2c_start(dev);
-            }
-            
-            i2c_send_addr(dev, msg->address, msg->buf, msg->len);
-        }
-        
-        if (dev->ss.flags & SF_I2C_FLAG_WR) {
-            ret = i2c_send_bytes(dev, msg->buf, msg->len);
-        } else {
-            i2c_read_bytes(dev, msg->buf, msg->len);
-        }
-    }
-    
-    i2c_stop(dev);
-    
-    return ret;
+void Soft_SDA_IN(void)
+{
+	DL_GPIO_initDigitalInput(SOFT_IIC_SDA_PORT);
 }
+
+void Soft_SDA_OUT(void)
+{
+	DL_GPIO_initDigitalOutput(SOFT_IIC_SDA_PORT);
+}
+
+uint8_t Soft_READ_SDA(void)
+{
+	return DL_GPIO_readPins(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT);
+}
+
+//初始化IIC
+void Soft_IIC_Init(void)
+{			
+	Soft_IIC_SCL(1);
+	Soft_IIC_SDA(1);
+}
+
+//产生IIC起始信号
+void Soft_IIC_Start(void)
+{
+	Soft_SDA_OUT();     //sda线输出
+	Soft_IIC_SDA(1);	  	  
+	Soft_IIC_SCL(1);
+	// delay_us(4);
+ 	Soft_IIC_SDA(0);//START:when CLK is high,DATA change form high to low 
+	delay_us(1);
+	Soft_IIC_SCL(0);//钳住I2C总线，准备发送或接收数据 
+}	  
+//产生IIC停止信号
+void Soft_IIC_Stop(void)
+{
+	Soft_SDA_OUT();//sda线输出
+	Soft_IIC_SCL(0);
+	Soft_IIC_SDA(0);//STOP:when CLK is high DATA change form low to high
+ 	// delay_us(4);
+	Soft_IIC_SCL(1); 
+	Soft_IIC_SDA(1);//发送I2C总线结束信号
+	// delay_us(4);							   	
+}
+//等待应答信号到来
+//返回值：1，接收应答失败
+//        0，接收应答成功
+uint8_t Soft_IIC_Wait_Ack(void)
+{
+	uint8_t ucErrTime=0;
+	Soft_SDA_IN();      //SDA设置为输入  
+	Soft_IIC_SDA(1);delay_us(1);	   
+	Soft_IIC_SCL(1);delay_us(1);	 
+	while(Soft_READ_SDA())
+	{
+		ucErrTime++;
+		if(ucErrTime>250)
+		{
+			Soft_IIC_Stop();
+			return 1;
+		}
+	}
+	Soft_IIC_SCL(0);//时钟输出0 	   
+	return 0;  
+} 
+//产生ACK应答
+void Soft_IIC_Ack(void)
+{
+	Soft_IIC_SCL(0);
+	Soft_SDA_OUT();
+	Soft_IIC_SDA(0);
+	delay_us(1);
+	Soft_IIC_SCL(1);
+	// delay_us(2);
+	Soft_IIC_SCL(0);
+}
+//不产生ACK应答		    
+void Soft_IIC_NAck(void)
+{
+	Soft_IIC_SCL(0);
+	Soft_SDA_OUT();
+	Soft_IIC_SDA(1);
+	delay_us(1);
+	Soft_IIC_SCL(1);
+	// delay_us(2);
+	Soft_IIC_SCL(0);
+}					 				     
+//IIC发送一个字节
+//返回从机有无应答
+//1，有应答
+//0，无应答			  
+void Soft_IIC_Send_Byte(uint8_t txd)
+{                        
+    uint8_t t;   
+	Soft_SDA_OUT(); 	    
+    Soft_IIC_SCL(0);//拉低时钟开始数据传输
+    for(t=0;t<8;t++)
+    {              
+        Soft_IIC_SDA((txd&0x80)>>7);
+        txd<<=1; 	  
+		delay_us(1);   
+		Soft_IIC_SCL(1);
+		delay_us(1); 
+		Soft_IIC_SCL(0);	
+		// delay_us(1);
+    }	 
+} 	    
+//读1个字节，ack=1时，发送ACK，ack=0，发送nACK   
+uint8_t Soft_IIC_Receive_Byte(unsigned char ack)
+{
+	unsigned char i,receive=0;
+	Soft_SDA_IN();//SDA设置为输入
+    for(i=0;i<8;i++ )
+	{
+        Soft_IIC_SCL(0); 
+        delay_us(1);
+		Soft_IIC_SCL(1);
+        receive<<=1;
+        if(Soft_READ_SDA())receive++;   
+		// delay_us(1); 
+    }					 
+    if (!ack)
+        Soft_IIC_NAck();//发送nACK
+    else
+        Soft_IIC_Ack(); //发送ACK   
+    return receive;
+}
+
+uint8_t Soft_IIC_Write_Byte(uint8_t addr,uint8_t reg,uint8_t data) 				 
+{ 
+    Soft_IIC_Start(); 
+	Soft_IIC_Send_Byte(addr|0);//发送器件地址+写命令	
+	if(Soft_IIC_Wait_Ack())	//等待应答
+	{
+		Soft_IIC_Stop();		 
+		return 1;		
+	}
+    Soft_IIC_Send_Byte(reg);	//写寄存器地址
+    Soft_IIC_Wait_Ack();		//等待应答 
+	Soft_IIC_Send_Byte(data);//发送数据
+	if(Soft_IIC_Wait_Ack())	//等待ACK
+	{
+		Soft_IIC_Stop();	 
+		return 1;		 
+	}		 
+    Soft_IIC_Stop();	 
+	return 0;
+}
+
+uint8_t Soft_IIC_Read_Byte(uint8_t addr,uint8_t reg)
+{
+	uint8_t res;
+    Soft_IIC_Start(); 
+	Soft_IIC_Send_Byte(addr|0);//发送器件地址+写命令	
+	Soft_IIC_Wait_Ack();		//等待应答 
+    Soft_IIC_Send_Byte(reg);	//写寄存器地址
+    Soft_IIC_Wait_Ack();		//等待应答
+    Soft_IIC_Start();
+	Soft_IIC_Send_Byte(addr|1);//发送器件地址+读命令	
+    Soft_IIC_Wait_Ack();		//等待应答 
+	res=Soft_IIC_Receive_Byte(0);//读取数据,发送nACK 
+    Soft_IIC_Stop();			//产生一个停止条件 
+	return res;		
+}
+
+uint8_t Soft_IIC_Write_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf)
+{
+	uint8_t i; 
+    Soft_IIC_Start(); 
+	Soft_IIC_Send_Byte(addr|0);//发送器件地址+写命令	
+	if(Soft_IIC_Wait_Ack())	//等待应答
+	{
+		Soft_IIC_Stop();		 
+		return 1;		
+	}
+    Soft_IIC_Send_Byte(reg);	//写寄存器地址
+    Soft_IIC_Wait_Ack();		//等待应答
+	for(i=0;i<len;i++)
+	{
+		Soft_IIC_Send_Byte(buf[i]);	//发送数据
+		if(Soft_IIC_Wait_Ack())		//等待ACK
+		{
+			Soft_IIC_Stop();	 
+			return 1;		 
+		}		
+	}    
+    Soft_IIC_Stop();	 
+	return 0;	
+} 
+
+uint8_t Soft_IIC_Read_Len(uint8_t addr,uint8_t reg,uint8_t len,uint8_t *buf)
+{ 
+ 	Soft_IIC_Start(); 
+	Soft_IIC_Send_Byte(addr|0);//发送器件地址+写命令	
+	if(Soft_IIC_Wait_Ack())	//等待应答
+	{;		 
+		printf("未检测到MPU6050");
+		Soft_IIC_Stop();
+		return 1;
+	}
+    Soft_IIC_Send_Byte(reg);	//写寄存器地址
+    Soft_IIC_Wait_Ack();		//等待应答
+    Soft_IIC_Start();
+	Soft_IIC_Send_Byte(addr|1);//发送器件地址+读命令	
+    Soft_IIC_Wait_Ack();		//等待应答 
+	while(len)
+	{
+		if(len==1)*buf=Soft_IIC_Receive_Byte(0);//读数据,发送nACK 
+		else *buf=Soft_IIC_Receive_Byte(1);		//读数据,发送ACK  
+		len--;
+		buf++; 
+	}    
+    Soft_IIC_Stop();	//产生一个停止条件 
+	return 0;	
+}
+
+
+

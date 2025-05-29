@@ -3,6 +3,7 @@
 #include "Serial.h"
 #include <stdbool.h>
 #include <string.h>
+#include <sysport.h>
 __IRQ irqs[10];
 
 /**
@@ -115,7 +116,7 @@ int Thread_schedul(Queue *queue){
 
 #define MAX_THREAD_ID 20 // 最大线程号
 static bool thread_id_map[MAX_THREAD_ID] = {0}; // 用于记录线程号是否已分配
-int Get_Random_Number();
+uint32_t Get_Random_Number();
 /**
  * @brief 生成唯一的线程号
  * @return 返回生成的线程号
@@ -135,7 +136,7 @@ static uint8_t Generate_Thread_ID() {
  * @note 注册线程到线程池
  * @return -1表示错误，0表示成功
  */
-int Thread_Registration(Thread *thr,void* (*Thread_Function)(int argc ,void **argv),const char* Thread_Name,void **argv, uint32_t Thread_Stack_Size){
+int Thread_Registration(Thread *thr,void* (*Thread_Function)(int argc ,void **argv),char* const Thread_Name,void **argv, uint32_t Thread_Stack_Size){
     
     thr = (Thread *)malloc(sizeof(Thread)+Thread_Stack_Size); 
     if (thr == NULL) {

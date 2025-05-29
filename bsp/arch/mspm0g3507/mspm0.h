@@ -4,6 +4,7 @@
 #include <ti/driverlib/driverlib.h>
 #include <ti/driverlib/dl_gpio.h>
 #include <ti/driverlib/dl_uart.h>
+#include "msp_i2c.h"
 
 
 typedef enum {
