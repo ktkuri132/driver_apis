@@ -10,6 +10,7 @@
  */
 
 #include "bsp_iic.h"
+#include <stdint.h>
 
 #define Low_Speed   0  // I2C低速模式
 #define High_Speed  1  // I2C高速模式
@@ -188,4 +189,49 @@ i2c_ss_t i2c_send_bytes(i2c_t *dev, uint8_t *data, uint16_t len){
     }
 
     return ret;  // 返回状态结构体
+}
+
+void i2c_read_bytes(i2c_t *dev, uint8_t *data, uint16_t len){
+    uint16_t i;
+    uint8_t ret;
+    for (i = 0; i < len; i++) {
+        ret = i2c_read_byte(dev, (i == (len - 1)) ? 0 : 1, &data[i]);  // 逐字节读取数据
+    }
+}
+
+void i2c_send_addr(i2c_t *dev, uint8_t addr, uint8_t *data, uint16_t len){
+    i2c_start(dev);  // 发送起始信号
+    if(dev->ss.flags & 0x01) {  // 如果是读操作
+        i2c_send_byte(dev, (addr << 1) | 1);  // 发送设备地址和读标志
+    } else {  // 如果是写操作
+        i2c_send_byte(dev, (addr << 1) | 0);  // 发送设备地址和写标志
+    }
+    i2c_send_bytes(dev, data, len);  // 发送数据
+    i2c_stop(dev);  // 发送停止信号
+}
+
+i2c_ss_t i2c_transfer(i2c_t *dev, i2c_msg_t *msg,uint8_t num){
+    i2c_ss_t ret;
+    
+    for (int i = 0; i < num; i++) {
+        if (!(dev->ss.flags & SF_I2C_FLAG_NO_START)) {
+            if (i == 1) {
+                i2c_restart(dev);
+            } else {
+                i2c_start(dev);
+            }
+            
+            i2c_send_addr(dev, msg->address, msg->buf, msg->len);
+        }
+        
+        if (dev->ss.flags & SF_I2C_FLAG_WR) {
+            ret = i2c_send_bytes(dev, msg->buf, msg->len);
+        } else {
+            i2c_read_bytes(dev, msg->buf, msg->len);
+        }
+    }
+    
+    i2c_stop(dev);
+    
+    return ret;
 }

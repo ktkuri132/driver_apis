@@ -21,7 +21,10 @@
 #include <ti/devices/msp/m0p/mspm0g350x.h>
 #include <ti/driverlib/driverlib.h>
 #endif
-
+#ifdef STM32F10X_MD
+#include <arch/stm32f1/f103.h>
+#include <stm32f10x.h>
+#endif
 
 
 typedef void (*func)(void *const Parameters);

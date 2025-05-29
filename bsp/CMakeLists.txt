@@ -8,6 +8,7 @@ get_filename_component(DIR_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 file(GLOB_RECURSE ${DIR_NAME}_Source
         arch/${Board_Name}/*.c
         Middlewave/sh/*.c
+        drivers/*c
         # Hardware/w25qxx/*.c
 )
 

@@ -4,15 +4,21 @@
 #include <stdint.h>
 
 /**
+ * I2C transfer flag definition
+ */
+#define SF_I2C_FLAG_WR              0x0001
+#define SF_I2C_FLAG_RD              0x0002
+#define SF_I2C_FLAG_NO_START        0x0004
+
+/**
  * @brief i2c message structure
  * 
  */
 typedef struct {
-    uint8_t address[3];  // I2C设备地址(最多支持3个地址)
+    uint8_t address;  // I2C设备地址(最多支持3个地址)
     uint8_t speed;  // I2C通信速度
     uint8_t len;  // 数据长度
     uint8_t *buf;  // 数据缓冲区指针
-    uint8_t flags;  // 标志位(0x01表示读操作, 0x00表示写操作)
 } i2c_msg_t;
 
 /**
@@ -25,6 +31,7 @@ typedef struct{
     uint8_t ack;  // I2C应答标志
     uint8_t Device_Success;  // I2C设备是否成功连接
     uint8_t Device_Fail;  // I2C设备连接失败标志
+    uint8_t flags;  // 标志位(0x01表示读操作, 0x00表示写操作)
 } i2c_ss_t;
 
 /**
