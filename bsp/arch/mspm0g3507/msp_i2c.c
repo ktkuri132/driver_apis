@@ -5,7 +5,7 @@
 #include "msp_i2c.h"
 #include <drivers/bsp_iic.h>
 #include <sysport.h>
-
+#include <middlewave/u8g2/u8g2.h>
 
 #define OLED_I2C_ADDR 0x78
 #define MPU6050_I2C_ADDR 0x68

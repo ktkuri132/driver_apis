@@ -10,7 +10,7 @@
 #define __SOFTI2C_
 #include "bsp_iic.h"
 #include <sysport.h>
-#define SOFT_IIC_PORT       GPIOB
+#define SOFT_IIC_PORT       I2C_PORT
 #define SOFT_IIC_SCL_PORT   I2C_SCL_PIN
 #define SOFT_IIC_SDA_PORT   I2C_SDA_PIN
 #endif
@@ -20,6 +20,7 @@ typedef struct Soft_IIC_APIs_Struct
 {
     void (*Soft_IIC_GPIO_Port_Init)(void); //IIC GPIO端口初始化函数
     void (*delay_us)(uint32_t nus); //延时函数
+    void (*dealy_ms)(uint32_t nms); //延时函数
     void (*Soft_IIC_SCL)(uint8_t state); //SCL线控制函数
     void (*Soft_IIC_SDA)(uint8_t state); //SDA线控制函数
     void (*Soft_SDA_IN)(void); //SDA线设置为输入
@@ -45,5 +46,3 @@ uint8_t Soft_IIC_Read_Byte(SIAS *i2c_dev,uint8_t addr,uint8_t reg);						//IIC�
 #endif
 #endif
 
-
-#endif

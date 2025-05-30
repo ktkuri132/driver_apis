@@ -24,7 +24,7 @@ SYS_Port*  SysPort_Init() {
         .System_Init = NULL,
         .SysTick_Init = NULL,
         .syscall_port = {
-          .bsp_systick_delay_us = NULL,
+          .bsp_systick_delay_us = __delay_us,
           .bsp_systick_delay_ms = NULL,
           .NVIC_Configuration = NULL,
         },

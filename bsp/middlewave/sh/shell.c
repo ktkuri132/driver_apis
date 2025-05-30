@@ -43,6 +43,7 @@ void MCU_Shell_Init(Bie_ShellTypeDef *ShellTypeStruct,DeviceFamily *log) {
     if(log->User != NULL) {
         printf("User: %s\n", log->User);  // 显示用户名
     } else {
+        log->User = "Unknown";  // 如果用户名为空，设置为"Unknown"
         printf("User:"FG_RED" Unknown"RESET_ALL"\n");
     }
     if(log->Password != NULL) {
@@ -51,10 +52,10 @@ void MCU_Shell_Init(Bie_ShellTypeDef *ShellTypeStruct,DeviceFamily *log) {
         printf("Password:"FG_RED" Unknown"RESET_ALL"\n");
     }
     printf("The MCU Shell is start\n");  // 欢迎信息
-    printf("If you feel it is useful, please give me a star on GitHub ^_^ -> ");
+    printf("If you feel it is useful, please give me a star on GitHub <(^_^)> -> ");
     printf(TEXT_UNDERLINE"https:\/\/github.com\/ktkuri132\/driver_apis.git\n"RESET_ALL);  // GitHub提示
     printf("Type 'help' for a list of commands.\n\n\n");  // 提示用户输入帮助命令
-    printf("%s@%s> ",log->User,log->Device);       // 显示提示符
+    printf(""FG_GREEN"%s"RESET_ALL"@%s> ",log->User,log->Device);       // 显示提示符
     fflush(stdout);                   // 刷新输出缓冲区
 }
 
@@ -68,7 +69,7 @@ void BIE_UART(void *Parameters, Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env,D
         printf("\n");                                            // 换行
         Shell_Deal(ShellTypeStruct, env);                        // 解析并执行命令
         ShellTypeStruct->Res_len = 0;                            // 重置输入长度
-        printf("%s@%s> ",log->User,log->Device);       // 显示提示符
+        printf(""FG_GREEN"%s"RESET_ALL"@%s> ",log->User,log->Device);       // 显示提示符
         fflush(stdout);
     }
     // 如果是退格键

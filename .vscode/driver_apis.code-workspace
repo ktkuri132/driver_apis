@@ -9,7 +9,10 @@
 		"files.associations": {
 			"sysport.h": "c",
 			"f407.h": "c",
-			"stdbool.h": "c"
+			"stdbool.h": "c",
+			"bsp_iic.h": "c",
+			"msp_i2c.h": "c",
+			"oled.h": "c"
 		}
 	}
 }

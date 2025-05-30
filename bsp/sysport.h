@@ -24,6 +24,7 @@
 #ifdef STM32F10X_MD
 #include <arch/stm32f1/f103.h>
 #include <stm32f10x.h>
+#include <stm32f10x_conf.h>
 #endif
 
 

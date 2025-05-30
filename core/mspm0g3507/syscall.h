@@ -21,13 +21,15 @@ __STATIC_INLINE void MSP_NVIC_Configuration(void) {
     NVIC_EnableIRQ(PendSV_IRQn);
     NVIC_EnableIRQ(SysTick_IRQn);
     NVIC_EnableIRQ(UART0_INT_IRQn);
-    // NVIC_EnableIRQ(UART1_INT_IRQn);
+    NVIC_EnableIRQ(UART1_INT_IRQn);
     // NVIC_EnableIRQ(UART2_INT_IRQn);
     // NVIC_EnableIRQ(UART3_INT_IRQn);
     NVIC_EnableIRQ(TIMER_0_INST_INT_IRQN);
 
 }
-
+__STATIC_INLINE void __delay_us(uint32_t cycles) {
+    DL_Common_delayCycles(cycles * 16); // 1us = 16 cycles
+}
 __STATIC_INLINE void delay_ms(uint32_t cycles) {
     DL_Common_delayCycles(cycles * 16000); // 1ms = 16000 cycles
 }

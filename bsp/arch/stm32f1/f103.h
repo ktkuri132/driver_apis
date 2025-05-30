@@ -8,7 +8,7 @@
 #include <stm32f10x.h>
 #include <sysport.h>
 #include "f1_gpio.h"
-
+#include "f1_i2c.h"
 
 typedef enum{
     AF_0,AF_1,AF_2,AF_3,AF_4,AF_5,AF_6,AF_7,

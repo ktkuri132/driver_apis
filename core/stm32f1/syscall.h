@@ -6,4 +6,6 @@
 #include <system_stm32f10x.h>
 #include <arch/stm32f1/f103.h>
 
+void __delay_us(uint32_t nus);
+
 #endif
