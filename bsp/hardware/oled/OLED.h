@@ -21,6 +21,8 @@
 #define OLED_Data_Mode      0x40
 #define OLED_Command_Mode   0x00
 
+extern SIAS i2c_Dev;
+
 #ifdef On_Chip_IIC
 
 #undef Peripheral_SPI
@@ -37,9 +39,9 @@
 
 #elif defined __SOFTI2C_
 #define OLED_ADDRESS        0x78
-#define OLED_WriteCommand(Command)  Soft_IIC_Write_Byte(OLED_ADDRESS,OLED_Command_Mode,Command)//Soft_IIC_WriteByte(OLED_ADDRESS,OLED_Command_Mode,Command)
-#define OLED_WriteData(Data,Count)  Soft_IIC_Write_Len(OLED_ADDRESS,OLED_Data_Mode,Count,Data)//Soft_IIC_WriteData(OLED_ADDRESS,OLED_Data_Mode,Data,Count)
-#define OLED_GPIO_Init()            Soft_IIC_Init()//Soft_IIC_Init()
+#define OLED_WriteCommand(Command)  Soft_IIC_Write_Byte(&i2c_Dev,OLED_ADDRESS,OLED_Command_Mode,Command)//Soft_IIC_WriteByte(OLED_ADDRESS,OLED_Command_Mode,Command)
+#define OLED_WriteData(Data,Count)  Soft_IIC_Write_Len(&i2c_Dev,OLED_ADDRESS,OLED_Data_Mode,Count,Data)//Soft_IIC_WriteData(OLED_ADDRESS,OLED_Data_Mode,Data,Count)
+#define OLED_GPIO_Init()            Soft_IIC_Init(&i2c_Dev)//Soft_IIC_Init()
 
 #endif
 

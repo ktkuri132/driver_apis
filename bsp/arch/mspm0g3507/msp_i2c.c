@@ -7,7 +7,6 @@
 #include <sysport.h>
 
 
-
 #define OLED_I2C_ADDR 0x78
 #define MPU6050_I2C_ADDR 0x68
 
@@ -16,48 +15,65 @@
 extern gpio_st i2c_scl;
 extern SYS_Port *sys_port; // 系统接口指针
 
-void MSP_I2C_Port_Init(void) {
-    // 初始化I2C端口
-    
+
+
+void delay_us(uint32_t nus)
+{
+	DL_Common_delayCycles(nus * 16); // 1us = 16 cycles
 }
 
-void MSP_IIC_SCL_UP(void) {
-    // 设置SCL引脚为高电平
-    DL_GPIO_setPins(GPIOB, DL_GPIO_PIN_11);
+void Soft_IIC_SCL(uint8_t state)
+{
+	if(state)
+    {
+        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT, Bit_SET);
+        DL_GPIO_setPins(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT);
+    }
+    else
+    {
+        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT, Bit_RESET);
+        DL_GPIO_clearPins(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT);
+    }
 }
 
-void MSP_IIC_SCL_DOWN(){
-    // 设置SCL引脚为低电平
-    DL_GPIO_clearPins(GPIOB, DL_GPIO_PIN_11);
+void Soft_IIC_SDA(uint8_t state)
+{
+	if(state)
+    {
+        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT, Bit_SET);
+        DL_GPIO_setPins(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT);
+    }
+    else
+    {
+        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT, Bit_RESET);
+        DL_GPIO_clearPins(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT);
+    }
 }
 
-void MSP_IIC_SDA_SET_OUTPUT(void) {
-    // 设置SDA引脚为输出模式
-    DL_GPIO_initDigitalOutput(IOMUX_PINCM18);
-    DL_GPIO_enableOutput(GPIOB, DL_GPIO_PIN_5);
+void Soft_SDA_IN(void)
+{
+	DL_GPIO_initDigitalInput(SOFT_IIC_SDA_PORT);
 }
 
-void MSP_IIC_SDA_UP(void) {
-    // 设置SDA引脚为高电平
-    DL_GPIO_setPins(GPIOB, DL_GPIO_PIN_5);
+void Soft_SDA_OUT(void)
+{
+	DL_GPIO_initDigitalOutput(SOFT_IIC_SDA_PORT);
 }
 
-void MSP_IIC_SDA_DOWN(void) {
-    // 设置SDA引脚为低电平
-    DL_GPIO_clearPins(GPIOB, DL_GPIO_PIN_5);
+uint8_t Soft_READ_SDA(void)
+{
+	return DL_GPIO_readPins(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT);
 }
 
-void MSP_IIC_SDA_SET_INPUT(void) {
-    // 设置SDA引脚为输入模式
-    DL_GPIO_initDigitalInput(IOMUX_PINCM18);
-}
-
-uint8_t MSP_IIC_SDA_READ(void) {
-    // 读取SDA引脚的状态
-    return DL_GPIO_readPins(GPIOB, DL_GPIO_PIN_5);
-}
-
-
+SIAS i2c_Dev = {
+    .Soft_IIC_GPIO_Port_Init = NULL,
+    .delay_us = delay_us,
+    .Soft_IIC_SCL = Soft_IIC_SCL,
+    .Soft_IIC_SDA = Soft_IIC_SDA,
+    .Soft_SDA_IN = Soft_SDA_IN,
+    .Soft_SDA_OUT = Soft_SDA_OUT,
+    .Soft_READ_SDA = Soft_READ_SDA
+};
 
 
 #endif
