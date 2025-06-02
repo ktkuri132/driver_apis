@@ -84,9 +84,9 @@ SYS_Port* SysPort_Init() {
 
 
 
-void PendSV_Handler(){
-    Task_Switch(MyEnv); // 执行任务切换
-}
+//void PendSV_Handler(){
+//    Task_Switch(MyEnv); // 执行任务切换
+//}
 
 void SysTick_Handler(void) {
     srt.SysRunTime++;
