@@ -82,24 +82,7 @@ SYS_Port* SysPort_Init() {
 
 
 
-/// 任务切换函数
-/// @param userEnv: 用户环境变量数组
-void Task_Switch(EnvVar *userEnv) {
-    // 假如环境变量过长可采取其他的查找算法:如二分查找等
-    // 这里采用线性查找
-    int i;
-    for (i = 0; userEnv[i].name != NULL; i++) {
-        if(userEnv[i].RunStae){
-            // 执行命令
-            sfp.syspfunc = userEnv[i].callback;  // 设置系统函数指针
-            sfp.argc = userEnv[i].argc;  // 设置参数个数
-            sfp.Parameters = userEnv[i].arg;  // 设置参数
-            userEnv[i].RunStae = 0;  // 重置运行状态
-            return;  // 跳出循环，避免重复执行
-        }
-    }
-    i = 0;  // 重置循环变量
-}
+
 
 void PendSV_Handler(){
     Task_Switch(MyEnv); // 执行任务切换

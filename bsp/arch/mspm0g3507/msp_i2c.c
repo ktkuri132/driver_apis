@@ -26,12 +26,10 @@ void Soft_IIC_SCL(uint8_t state)
 {
 	if(state)
     {
-        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT, Bit_SET);
         DL_GPIO_setPins(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT);
     }
     else
     {
-        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT, Bit_RESET);
         DL_GPIO_clearPins(SOFT_IIC_PORT, SOFT_IIC_SCL_PORT);
     }
 }
@@ -40,12 +38,10 @@ void Soft_IIC_SDA(uint8_t state)
 {
 	if(state)
     {
-        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT, Bit_SET);
         DL_GPIO_setPins(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT);
     }
     else
     {
-        // GPIO_WriteBit(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT, Bit_RESET);
         DL_GPIO_clearPins(SOFT_IIC_PORT, SOFT_IIC_SDA_PORT);
     }
 }

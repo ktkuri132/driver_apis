@@ -4,72 +4,87 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+
 #include "Serial.h"
 #include "sysport.h"
 
-void MCU_Shell_Init(Bie_ShellTypeDef *ShellTypeStruct,DeviceFamily *log) {
-    ShellTypeStruct->c = 0;          // 初始化接收字符
-    ShellTypeStruct->Res_len = 0;    // 初始化接收长度
-    ShellTypeStruct->UART_NOTE = 0;  // 初始化串口节点
-    ShellTypeStruct->RunStae = 0;    // 初始化运行状态
+void MCU_Shell_Init(Bie_ShellTypeDef *ShellTypeStruct, DeviceFamily *log) {
+    ShellTypeStruct->c         = 0;                                   // 初始化接收字符
+    ShellTypeStruct->Res_len   = 0;                                   // 初始化接收长度
+    ShellTypeStruct->UART_NOTE = 0;                                   // 初始化串口节点
+    ShellTypeStruct->RunStae   = 0;                                   // 初始化运行状态
     memset(ShellTypeStruct->Data, 0, sizeof(ShellTypeStruct->Data));  // 清空数据缓冲区
-    printf(CLEAR_SCREEN);            // 清屏
-    printf("SHELL_VERSION: %d.%d.%d\n", SHELL_VERSION_MAIN, SHELL_VERSION_RE, SHELL_VERSION_UPDATE);  // 显示版本信息
-    if(log->Architecture != NULL) {
-        printf("Architecture: %s\n", log->Architecture);  // 显示处理器架构
+    printf(CLEAR_SCREEN);                                             // 清屏
+    printf("SHELL_VERSION: %d.%d.%d\n", SHELL_VERSION_MAIN, SHELL_VERSION_RE,
+           SHELL_VERSION_UPDATE);  // 显示版本信息
+    if (log == NULL) {
+        static DeviceFamily default_log = {.Architecture = "Unknown",
+                                           .User         = "User",
+                                           .Password     = "Unknown",
+                                           .DeviceName   = "UnknownMCU",
+                                           .OS           = "Unknown",
+                                           .Device       = "Unknown",
+                                           .Version      = "Unknown"};
+        log                             = &default_log;  // 如果日志信息为空，使用默认值
     } else {
-        printf("Architecture:"FG_RED" Unknown"RESET_ALL"\n");
-    }
-    if(log->DeviceName != NULL) {
-        printf("Device Name: %s\n", log->DeviceName);  // 显示设备名称
-    } else {
-        printf("Device Name:"FG_RED" Unknown"RESET_ALL"\n");
-    }
-    if(log->OS != NULL) {
-        printf("Operating System: %s\n", log->OS);  // 显示操作系统
-    } else {
-        printf("Operating System:"FG_RED"No OS"RESET_ALL"\n");
-    }
-    if(log->Device != NULL) {
-        printf("Device Model: %s\n", log->Device);  // 显示设备型号
-    } else {
-        printf("Device Model:"FG_RED" Unknown"RESET_ALL"\n");
-    }
-    if(log->Version != NULL) {
-        printf("Version: %s\n", log->Version);  // 显示版本信息
-    } else {
-        printf("Version:"FG_RED" Unknown"RESET_ALL"\n");
-    }
-    if(log->User != NULL) {
-        printf("User: %s\n", log->User);  // 显示用户名
-    } else {
-        log->User = "Unknown";  // 如果用户名为空，设置为"Unknown"
-        printf("User:"FG_RED" Unknown"RESET_ALL"\n");
-    }
-    if(log->Password != NULL) {
-        printf("Password: %s\n", log->Password);  // 显示密码
-    } else {
-        printf("Password:"FG_RED" Unknown"RESET_ALL"\n");
+        if (log->Architecture != NULL) {
+            printf("Architecture: %s\n", log->Architecture);  // 显示处理器架构
+        } else {
+            printf("Architecture:" FG_RED " Unknown" RESET_ALL "\n");
+        }
+        if (log->DeviceName != NULL) {
+            printf("Device Name: %s\n", log->DeviceName);  // 显示设备名称
+        } else {
+            log->DeviceName = "Unknown";  // 如果设备名称为空，设置为"Unknown"
+            printf("Device Name:" FG_RED " Unknown" RESET_ALL "\n");
+        }
+        if (log->OS != NULL) {
+            printf("Operating System: %s\n", log->OS);  // 显示操作系统
+        } else {
+            printf("Operating System:" FG_RED "No OS" RESET_ALL "\n");
+        }
+        if (log->Device != NULL) {
+            printf("Device Model: %s\n", log->Device);  // 显示设备型号
+        } else {
+            printf("Device Model:" FG_RED " Unknown" RESET_ALL "\n");
+        }
+        if (log->Version != NULL) {
+            printf("Version: %s\n", log->Version);  // 显示版本信息
+        } else {
+            printf("Version:" FG_RED " Unknown" RESET_ALL "\n");
+        }
+        if (log->User != NULL) {
+            printf("User: %s\n", log->User);  // 显示用户名
+        } else {
+            log->User = "Unknown";  // 如果用户名为空，设置为"Unknown"
+            printf("User:" FG_RED " Unknown" RESET_ALL "\n");
+        }
+        if (log->Password != NULL) {
+            printf("Password: %s\n", log->Password);  // 显示密码
+        } else {
+            printf("Password:" FG_RED " Unknown" RESET_ALL "\n");
+        }
     }
     printf("The MCU Shell is start\n");  // 欢迎信息
     printf("If you feel it is useful, please give me a star on GitHub <(^_^)> -> ");
-    printf(TEXT_UNDERLINE"https:\/\/github.com\/ktkuri132\/driver_apis.git\n"RESET_ALL);  // GitHub提示
-    printf("Type 'help' for a list of commands.\n\n\n");  // 提示用户输入帮助命令
-    printf(""FG_GREEN"%s"RESET_ALL"@%s> ",log->User,log->Device);       // 显示提示符
-    fflush(stdout);                   // 刷新输出缓冲区
+    printf(TEXT_UNDERLINE
+           "https:\/\/github.com\/ktkuri132\/driver_apis.git\n" RESET_ALL);  // GitHub提示
+    printf("Type 'help' for a list of commands.\n\n\n");                     // 提示用户输入帮助命令
+    printf("" FG_GREEN "%s" RESET_ALL "@%s> ", log->User, log->Device);      // 显示提示符
+    fflush(stdout);                                                          // 刷新输出缓冲区
 }
 
 // 串口1中断处理函数：检测数据格式，接收数据
-void BIE_UART(void *Parameters, Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env,DeviceFamily *log) {
+void BIE_UART(void *Parameters, Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env, DeviceFamily *log) {
     printf(RESET_ALL);
     usart.bsp_usart_x_receive(Parameters, &ShellTypeStruct->c);  // 接收数据
     // 如果是回车键
     if (ShellTypeStruct->c == '\r' || ShellTypeStruct->c == '\n') {
-        ShellTypeStruct->Data[ShellTypeStruct->Res_len] = '\0';  // 添加字符串结束符
-        printf("\n");                                            // 换行
-        Shell_Deal(ShellTypeStruct, env);                        // 解析并执行命令
-        ShellTypeStruct->Res_len = 0;                            // 重置输入长度
-        printf(""FG_GREEN"%s"RESET_ALL"@%s> ",log->User,log->Device);       // 显示提示符
+        ShellTypeStruct->Data[ShellTypeStruct->Res_len] = '\0';              // 添加字符串结束符
+        printf("\n");                                                        // 换行
+        Shell_Deal(ShellTypeStruct, env);                                    // 解析并执行命令
+        ShellTypeStruct->Res_len = 0;                                        // 重置输入长度
+        printf("" FG_GREEN "%s" RESET_ALL "@%s> ", log->User, log->Device);  // 显示提示符
         fflush(stdout);
     }
     // 如果是退格键
@@ -162,6 +177,25 @@ extern SYS_Port *port;  // 声明全局变量
 #define MAX_ARGS 20     // 最大参数数量
 #define MAX_ARG_LEN 50  // 每个参数的最大长度
 
+/// 任务切换函数
+/// @param userEnv: 用户环境变量数组
+void Task_Switch(EnvVar *userEnv) {
+    // 假如环境变量过长可采取其他的查找算法:如二分查找等
+    // 这里采用线性查找
+    int i;
+    for (i = 0; userEnv[i].name != NULL; i++) {
+        if(userEnv[i].RunStae){
+            // 执行命令
+            sfp.syspfunc = userEnv[i].callback;  // 设置系统函数指针
+            sfp.argc = userEnv[i].argc;  // 设置参数个数
+            sfp.Parameters = userEnv[i].arg;  // 设置参数
+            userEnv[i].RunStae = 0;  // 重置运行状态
+            return;  // 跳出循环，避免重复执行
+        }
+    }
+    i = 0;  // 重置循环变量
+}
+
 /// @brief 处理串口发送的指令
 /// @param env_vars 环境变量列表
 /// @param ShellTypeStruct Shell协议结构体
@@ -205,7 +239,7 @@ void Shell_Deal(Bie_ShellTypeDef *ShellTypeStruct, EnvVar *env_vars) {
             env_vars[i].RunStae = 1;              // 设置运行状态为1，表示执行命令
             env_vars[i].arg     = arg_part;       // 设置参数
             env_vars[i].argc    = arg_count;      // 设置参数个数
-            SCB->ICSR |= SCB_ICSR_PENDSVSET_Msk;  // 触发 PendSV 中断
+            Task_Switch(env_vars);  // 执行任务切换
             return;
         }
     }

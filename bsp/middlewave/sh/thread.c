@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <sysport.h>
+#include <stdlib.h>
+#include <time.h>
 __IRQ irqs[10];
 
 /**
@@ -116,7 +118,13 @@ int Thread_schedul(Queue *queue){
 
 #define MAX_THREAD_ID 20 // 最大线程号
 static bool thread_id_map[MAX_THREAD_ID] = {0}; // 用于记录线程号是否已分配
-uint32_t Get_Random_Number();
+
+uint32_t Get_Random_Number(){
+    // 这里可以使用硬件随机数生成器或其他方法生成随机数
+    // 例如，使用系统时钟作为种子生成伪随机数
+    srand((unsigned int)time(NULL)); // 使用当前时间作为种子
+    return rand(); // 返回一个随机数
+}
 /**
  * @brief 生成唯一的线程号
  * @return 返回生成的线程号
